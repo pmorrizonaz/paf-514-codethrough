@@ -1,0 +1,318 @@
+---
+title: "More ways to use 'For Loops' in R"
+subtitle: "PAF 514 Code-Through"
+author: "Paul Morrison"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output:
+  html_document:
+    theme: readable
+    df_print: paged
+    highlight: tango
+    toc: yes
+    toc_float: yes
+---
+
+```{r include = FALSE}
+
+# SET GLOBAL KNITR OPTIONS
+
+knitr::opts_chunk$set(echo = TRUE, 
+                      message = FALSE, 
+                      warning = FALSE, 
+                      fig.width = 10, 
+                      fig.height = 8)
+
+
+
+# LOAD PACKAGES
+
+library(pander)
+library(kableExtra)
+
+```
+
+<br>
+<br>
+
+# Introduction
+
+Admittedly, during the first two weeks of this course, I struggled with for loops. I understood the concept, but the actual coding confused me. As I worked with them more, they began to make more sense, and to continue practicing working with them, I wanted to try using them in fun ways. So after talking to some friends who are data analysts and watching some videos on my own time, I learned of two more fun ways to use for loops that I wanted to share here. 
+
+<br>
+
+## Content Overview
+
+This Code-Through will focus on two uses of for loops that were not directly explored in this course's previous material, but were inspired by it. First, I will practice using a **nested for loop**, or one for loop within another for loop. Second, I will practice **combining for loops with text analysis**, joining two of the main topics learned in this course. 
+
+<br>
+
+## Why You Should Care
+
+As Hadley Wickham states in R for Data Science, "for loops are the fundamental building block of iteration" (1). There will likely come times as data analysts that require us to repeat a process for a dataset or a program. While for loops may not always be the best way of doing this, depending on the task, these kinds of loops still not only can work, but at the very minimum, can serve as a stepping stone in learning to work with more complex forms of iterations later on.
+
+<br>
+
+## Learning Objectives
+
+Specifically, you'll learn how to...
+
+* create a basic for loop
+
+* nest a for loop within another
+
+* combine for loops and regular expressions to analyze textual data
+
+<br>
+<br>
+
+# Part 1 - Review of for loops
+
+We'll start with a quick review of for loops: what they are, how they work, and how to successfully build one. In R, for loops are one of the three main kinds of loops, along with "while loops" and "repeat loops". Loops are used to "execute instructions ... a specified number of times or until a condition is met" (2). For loops are used to do this by telling R to repeat coded instructions over a set number of times. For example, here's a simple for loop:
+
+```{r}
+
+for (i in 1:10) {
+  print(i)
+}
+
+```
+
+Let's break down this example. The for loop is started with the function for(). Then, a variable is set as the letter "i" - this will be replaced with each value in the sequence, which is 1 through 10 here. So the variable starts at 1, then when the loop iterates back to the start, the variable is reset to 2, and so on until 10, when it stops. Each of these variables is run through the command statement, located between the curly brackets - in this example, simply to print to variable. That is why the output is just the digits 1 through 10 printed. Much more can be done with a for loop, such as multiplying all the numbers in the sequence by 2:
+
+```{r}
+
+for (i in 1:10) {
+  x <- i*2
+  print(x)
+}
+
+```
+
+This is very similar to the first, where all the numbers in the sequence 1 through 10 are put through the command statement one at a time. In this case, each number in the sequence is multiplied by two, and this result is assigned to object "x". Then, x is printed. 
+
+So that's the basic for loop. Now, it's time to go further. 
+
+<br>
+
+# Part 2 - Nested for loops
+
+Why have just one for loop when you can have two? Now, most of the time, a single for loop is enough to get an iteration job done. But what if you have two sets of sequences that you want to loop through? In this case, you can nest one for loop within another. Nesting is when one item is placed within another item. Think of the Academy Award winning movie "Inception", where the characters travel to dreams within dreams. In that movie, the dreams were nested. In this case, we'll be nesting, or placing one within another, for loops - for loop-ception!
+
+Nesting for loops has two loops, one within the other, so an outer loop and an inner loop. The inner loop is part of the command statement within the outer loop. Since both are for loops, they both have a sequence they'll iterate through, such as 1 through 10 in the previous example. However, because one is nested within the other, we need to be careful with how we think about them working. 
+
+The outer for loop is the first one encountered, so the first value of its sequence will be used first. Then, for that first value of the outer loop, it will go to the command statement, the inner loop. The inner loop will then run through its sequence of iterations over its command statement. Here's the basic syntax of what it looks like:
+
+```{r, eval=FALSE}
+
+for (variable.1 in sequence.1) {
+  for (variable.2 in sequence.2) {
+    command_statement
+  }
+}
+
+```
+
+Notice how the second, inner for loop is within the first, outer for loops command statement. So each variable of the sequence in the outer loop will have the entire inner for loop's sequence run. Then, once the inner loops sequence is run for a single outer loop variable, the outer loop's next iteration begins, again going through the inner loops entire sequence. The entire thing continues to run until the final part of the outer loop's sequence has been executed.
+
+And that's the basic structure of a nested for loop. Now, a way to use nested for loops. Nested for loops final outputs often include two sets of values, one set from the inner loop and one from the outer loop. Because of this, we can create something where these two values interact with each other. What better way to show this then to re-create everyone's favorite math display from elementary school, a multiplication table!
+
+Using nested for loops to create a classic twelve-by-twelve multiplication table is very straightforward. We'll use two loops, one nested within the other, both with a sequence of one through twelve. Then, we'll simply have the outer loop multiplied by values of the inner loop, repeated twelve times. 
+
+We'll start with a simple three by three table to explain how it all works. First, the basic code to multiply the first sequence of numbers by the second sequence. 
+
+```{r}
+
+# The basic nested for loop
+
+for (value.1 in 1:3) {
+  for (value.2 in 1:3) {
+    print(value.1 * value.2)
+  }
+}
+
+```
+
+While the output is not a nice table, we can see how it works. The first three results (1, 2, 3) represent the first variable of the outer loop, in this case 1. This first variable, 1, is passed to the inner loop. Then, the inner loop runs its sequence of one to three through its command statement, which is to multiply the variable from the outer loop by each part of the inner loop's sequence. So the number 1 (from the outer loop) is multiplied by 1, then 2, and finally 3. This completes the inner loops iteration, so it goes back to the outer loop's next variable in the sequence, 2. This value 2 then goes through the same process of being multiplied by 1, 2, and 3. Same thing finally with the value 3 from the outer loop. 
+
+So that's how it works. The sequence can be changed to 1:12 for both, but using the same code will again simply print all the results in a list rather than a table. To make the results feed into a table, a collector must first be created and then filled with the outputs. To do this, we'll create an empty matrix.
+
+```{r}
+
+multiplication_table <- matrix(nrow = 12, ncol = 12)
+print(multiplication_table)
+
+```
+
+We now have our empty twelve by twelve table. We can now fill it with the nested for loops used earlier. Notice how on the above empty matrix, each row and column is identified with numbers in square brackets. For example, [1,12] would refer to the top right NA value, since the row is labelled [1,] and the column is labelled [,12]. We can use this labeling system to fill the matrix with our multiplication results. 
+
+```{r}
+
+# Fill the table with the multiplication values. The inner loop's arguments 
+# has each result writing over the NA in the original table.
+
+for (value.1 in 1:12) {
+  for (value.2 in 1:12) {
+    multiplication_table[value.1,value.2] <- value.1 * value.2
+  }
+}
+
+# Print the newly filled in table.
+
+print(multiplication_table)
+
+```
+
+And there's the twelve by twelve multiplication table! We can use the format to call a result and quiz ourselves. For example, if we want to check 7 times 8, we can check the answer in the table.
+
+```{r}
+
+multiplication_table[7,8]
+
+```
+
+What a fun, nostalgic way to practice using for loops. Next, we'll apply for loops to textual data by building regular expressions into the loop.
+
+<br>
+
+# Part 3 - For loops with regular expression
+
+Previously in this course, in module 3, we learned how to work with textual data using regular expressions. The lab for that module tasked us with analyzing a dataset of article titles, and one of the questions asked to determine the 25 most common words used in the dataset's titles. In this part, I will show how to do the same task, but using for loops. 
+
+For the sake of simplicity, instead of the large dataset from lab 3, I will instead be using a poem and counting the 10 most common words in the poem. The poem will be my personal favorite (memorized and acted out in costume in 7th grade), "O Captain! My Captain" by Walt Whitman (3). 
+
+```{r}
+
+OCMC <- ("O Captain! my Captain! our fearful trip is done,
+The ship has weather’d every rack, the prize we sought is won,
+The port is near, the bells I hear, the people all exulting,
+While follow eyes the steady keel, the vessel grim and daring;
+But O heart! heart! heart!
+O the bleeding drops of red,
+Where on the deck my Captain lies,
+Fallen cold and dead.
+O Captain! my Captain! rise up and hear the bells;
+Rise up- for you the flag is flung- for you the bugle trills,
+For you bouquets and ribbon’d wreaths- for you the shores a-crowding,
+For you they call, the swaying mass, their eager faces turning;
+Here Captain! dear father!
+This arm beneath your head!
+It is some dream that on the deck,
+You’ve fallen cold and dead.
+My Captain does not answer, his lips are pale and still,
+My father does not feel my arm, he has no pulse nor will,
+The ship is anchor’d safe and sound, its voyage closed and done,
+From fearful trip the victor ship comes in with object won;
+Exult O shores, and ring O bells!
+But I with mournful tread,
+Walk the deck my Captain lies,
+Fallen cold and dead.")
+
+```
+
+First things first, we'll have to do some cleaning of the text for better analysis using regular expressions. This includes making everything lowercase, removing punctuation, and removing extra symbols (such as \n for new lines). 
+
+```{r}
+
+# Make all words lowercase
+ 
+OCMC_clean <- tolower(OCMC)
+
+# Remove all punctuation - see source (4) for where I learned this
+
+OCMC_clean <- gsub("[[:punct:]]", "", OCMC_clean)
+
+# Remove all new line (\n) indicators
+
+OCMC_clean <- gsub("\n", " ", OCMC_clean)
+
+OCMC_clean
+
+```
+
+Just a little more cleaning to do...
+
+```{r}
+
+# First, the string must be split into separate words and made into a vector
+
+OCMC_clean <- strsplit(OCMC_clean, split = " ")
+OCMC_clean <- unlist(OCMC_clean)
+
+# Now, we can identify all the unique words in the poem
+
+unique_words <- unique(OCMC_clean)
+unique_words
+
+```
+
+```{r}
+
+# The number of unique words in the poem can be determined by the following
+
+unique_words_length <- length(unique(OCMC_clean))
+unique_words_length
+
+```
+
+
+```{r}
+
+# Then, we can create an empty vector with the length of the number of unique words
+# This empty collector vector will then record all the outputs of the for loop
+
+unique_words_vector <- numeric(unique_words_length)
+
+# We'll set up the collector vector so that each unique word can be counted - see
+# source (5) for where I learned this. 
+
+OCMC_words <- setNames(unique_words_vector, unique_words)
+OCMC_words
+
+```
+
+The above vector is empty and when the for loop runs, the results will be recorded into the vector.
+
+```{r}
+
+# Finally, the for loop to count unique words in the poem
+
+for (word in OCMC_clean) {
+  OCMC_words[word] <- OCMC_words[word] + 1
+}
+
+OCMC_words
+
+```
+
+Lastly, we'll determine the top 10 words used in the poem.
+
+```{r}
+
+OCMC_top_10 <- sort(OCMC_words, decreasing = TRUE)
+
+head(OCMC_top_10, 10)
+
+```
+
+And there you have it, the top 10 words in "O Captain! My Captain". A bit boring that the most common word is "the", but not all that surprising. 
+
+Was using the for loop the most efficient way to do this task? Maybe, maybe not. But that's the beauty of coding - there's often more than one way to accomplish a task, and being well-versed in different ways makes for a better analyst.  
+
+# Works Cited
+
+This code through references and cites the following sources:
+
+<br>
+
+1. Wickham, H., Cetinkaya-Rundel, M., & Grolemund, G. (2023). R for data science (2nd ed.). O'Reilly.
+
+2. Douglas, R., Roos, D., Mancini, F., Couto, A., & Lusseau, D. (2024). An introduction to r. [Link to book](https://intro2r.com/)
+
+3. Whitman, W. (1865). O captain! My captain! [Link to poem](https://poets.org/poem/o-captain-my-captain)
+
+4. PeterK. (2015, March 17). Removing punctuation from text using r. Stack Overflow. https://stackoverflow.com/questions/29098801/removing-punctuations-from-text-using-r
+
+5. Bobbitt, Z. (2022, April 4). How to use setNames funtion in R (with examples). Statology. https://www.statology.org/setnames-r/
+
+<br>
+<br>
